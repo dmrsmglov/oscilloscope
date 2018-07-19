@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" style="-fx-border-color: #000;" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <children>
+        <Pane layoutX="51.0" layoutY="51.0" style="-fx-border-color: #000;" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="50.0">
+            <children>
+                <Canvas fx:id="screenCanvas" height="500.0" width="500.0" />
+                <Text layoutX="336.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Размеры клетки 30х30" wrappingWidth="163.00000381469727" />
+            </children>
+        </Pane>
+        <VBox layoutX="617.0" layoutY="50.0" prefHeight="700.0" prefWidth="450.0" style="-fx-border-color: #000;" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+            <children>
+                <Slider fx:id="amplitudeSlider" blockIncrement="5.0" majorTickUnit="50.0" max="300.0" minorTickCount="4" onMouseClicked="#setAmplitude" onMouseDragged="#setAmplitude" prefHeight="38.0" prefWidth="447.0" showTickLabels="true" showTickMarks="true" value="50.0">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </Slider>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Амплитуда выходного импульсного сигнала, В" textAlignment="CENTER" wrappingWidth="437.7294921875">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="10.0" />
+                    </VBox.margin>
+                </Text>
+                <Slider fx:id="frequencySlider" blockIncrement="0.0" majorTickUnit="50.0" max="300.0" minorTickCount="4" onMouseClicked="#setFrequency" onMouseDragged="#setFrequency" prefHeight="38.0" prefWidth="444.0" showTickLabels="true" showTickMarks="true" value="50.0">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </Slider>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Период выходного импульсного сигнала, мс" textAlignment="CENTER" wrappingWidth="454.7294921875">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="10.0" />
+                    </VBox.margin>
+                </Text>
+                <Slider fx:id="dutyFactorSlider" majorTickUnit="3.0" max="10.0" min="1.0" minorTickCount="2" onMouseClicked="#setDutyFactor" onMouseDragged="#setDutyFactor" prefHeight="33.0" prefWidth="455.0" showTickLabels="true" showTickMarks="true" value="2.0">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </Slider>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Скважность " textAlignment="CENTER" wrappingWidth="456.0">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="10.0" />
+                    </VBox.margin>
+                </Text>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Форма генерируемого сигнала" textAlignment="RIGHT" wrappingWidth="447.0">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="100.0" />
+                    </VBox.margin>
+                </Text>
+                <ToggleButton fx:id="sineSignalButton" mnemonicParsing="false" onMouseClicked="#setSineSignal" prefHeight="32.0" prefWidth="149.0" text="Синусоидная">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="ToggleGroup1" />
+                    </toggleGroup>
+                    <VBox.margin>
+                        <Insets left="330.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </ToggleButton>
+                <ToggleButton fx:id="rectSignalButton" mnemonicParsing="false" onMouseClicked="#setRectSignal" prefHeight="32.0" prefWidth="149.0" text="Прямоугольная" toggleGroup="$ToggleGroup1">
+                    <VBox.margin>
+                        <Insets left="330.0" right="20.0" top="20.0" />
+                    </VBox.margin></ToggleButton>
+                <ToggleButton fx:id="triangleSignalButton" mnemonicParsing="false" onMouseClicked="#setTriangleSignal" prefHeight="32.0" prefWidth="149.0" text="Треугольная" toggleGroup="$ToggleGroup1">
+                    <VBox.margin>
+                        <Insets left="330.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </ToggleButton>
+            </children></VBox>
+        <Button fx:id="generatorSwitcher" layoutX="51.0" layoutY="700.0" mnemonicParsing="false" onMouseClicked="#clickGeneratorSwitcher" prefHeight="40.0" prefWidth="98.0" text="Включить" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" />
+        <Slider fx:id="horizontalOffsetSlider" layoutX="52.0" layoutY="562.0" majorTickUnit="50.0" max="200.0" min="-200.0" minorTickCount="5" onMouseClicked="#setHorizontalOffset" onMouseDragged="#setHorizontalOffset" prefHeight="40.0" prefWidth="500.0" showTickLabels="true" showTickMarks="true" />
+        <Slider fx:id="verticalOffsetSlider" layoutX="575.0" layoutY="51.0" majorTickUnit="50.0" max="150.0" min="-150.0" minorTickCount="5" onMouseClicked="#setVerticalOffset" onMouseDragged="#setVerticalOffset" orientation="VERTICAL" prefHeight="500.0" prefWidth="50.0" showTickLabels="true" showTickMarks="true" />
+        <Text layoutX="180.0" layoutY="625.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Смещение сигнала по горизонтали" />
+        <Text layoutX="566.0" layoutY="571.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Смещение сигнала по вертикали" wrappingWidth="81.59814453125" />
+    </children>
+</AnchorPane>
