@@ -2,7 +2,7 @@ package main;
 
 class OscilloscopeScreen {
     private boolean enabled = false;
-    private double offsetX = 0, offsetY = 0, amplitude = 50, frequency = 50, dutyFactor = 2;
+    private double offsetX = 0, offsetY = 0, amplitude = 50, frequency = 50, pulse = 2;
 
     boolean isEnabled() {
         return enabled;
@@ -44,11 +44,11 @@ class OscilloscopeScreen {
         this.frequency = frequency;
     }
 
-    double getDutyFactor() {
-        return dutyFactor;
+    double getPulse() {
+        return pulse;
     }
 
-    void setDutyFactor(double dutyFactor) {
-        this.dutyFactor = dutyFactor;
+    void setPulse(double pulse) {
+        this.pulse = pulse;
     }
 }

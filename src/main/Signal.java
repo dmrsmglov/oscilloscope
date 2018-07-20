@@ -54,8 +54,8 @@ class Signal {
             if (sign == 1) {
                 points.add(new Point2D(x, y - oscilloscope.getAmplitude()));
                 points.add(new Point2D(Math.min(x + curFrequency /
-                        oscilloscope.getDutyFactor(), widthScreen), y - oscilloscope.getAmplitude()));
-                x += curFrequency / oscilloscope.getDutyFactor();
+                        oscilloscope.getPulse(), widthScreen), y - oscilloscope.getAmplitude()));
+                x += curFrequency / oscilloscope.getPulse();
                 if (x < widthScreen) {
                     points.add(new Point2D(x, y - oscilloscope.getAmplitude()));
                     points.add(new Point2D(x, y));
@@ -63,8 +63,8 @@ class Signal {
                 sign *= -1;
             } else if (sign == -1) {
                 points.add(new Point2D(x, y));
-                points.add(new Point2D(Math.min(x + curFrequency - curFrequency / oscilloscope.getDutyFactor(), widthScreen), y));
-                x += curFrequency - curFrequency / oscilloscope.getDutyFactor();
+                points.add(new Point2D(Math.min(x + curFrequency - curFrequency / oscilloscope.getPulse(), widthScreen), y));
+                x += curFrequency - curFrequency / oscilloscope.getPulse();
                 if (x < widthScreen) {
                     points.add(new Point2D(x, y - oscilloscope.getAmplitude()));
                     points.add(new Point2D(x, y));

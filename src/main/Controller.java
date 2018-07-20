@@ -23,7 +23,7 @@ public class Controller implements Initializable {
     public Button generatorSwitcher;
     public Slider horizontalOffsetSlider, verticalOffsetSlider, amplitudeSlider, frequencySlider;
     public ToggleButton sineSignalButton, rectSignalButton, triangleSignalButton;
-    public Slider dutyFactorSlider;
+    public Slider pulseSlider;
 
 
     private OscilloscopeScreen oscilloscope = new OscilloscopeScreen();
@@ -34,7 +34,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         plotAxis();
-        dutyFactorSlider.disableProperty().setValue(true);
+        pulseSlider.disableProperty().setValue(true);
     }
 
     private void plotAxis() {
@@ -130,7 +130,7 @@ public class Controller implements Initializable {
         }
         signalType = SignalType.rectangle;
         rectSignalButton.disableProperty().setValue(true);
-        dutyFactorSlider.disableProperty().setValue(false);
+        pulseSlider.disableProperty().setValue(false);
         if (oscilloscope.isEnabled()) {
             clearCanvas();
             drawSignal();
@@ -139,7 +139,7 @@ public class Controller implements Initializable {
 
     public void setTriangleSignal(MouseEvent mouseEvent) {
         if (signalType == SignalType.rectangle) {
-            dutyFactorSlider.disableProperty().setValue(true);
+            pulseSlider.disableProperty().setValue(true);
             rectSignalButton.disableProperty().setValue(false);
         }
         if (signalType == SignalType.sine) {
@@ -155,7 +155,7 @@ public class Controller implements Initializable {
 
     public void setSineSignal(MouseEvent mouseEvent) {
         if (signalType == SignalType.rectangle) {
-            dutyFactorSlider.disableProperty().setValue(true);
+            pulseSlider.disableProperty().setValue(true);
             rectSignalButton.disableProperty().setValue(false);
         }
         if (signalType == SignalType.triangle) {
@@ -169,9 +169,11 @@ public class Controller implements Initializable {
         }
     }
 
-    public void setDutyFactor(MouseEvent mouseEvent) {
-        oscilloscope.setDutyFactor(dutyFactorSlider.getValue());
-        clearCanvas();
-        drawSignal();
+    public void setPulse(MouseEvent mouseEvent) {
+        oscilloscope.setPulse(pulseSlider.getValue());
+        if (oscilloscope.isEnabled()) {
+            clearCanvas();
+            drawSignal();
+        }
     }
 }
