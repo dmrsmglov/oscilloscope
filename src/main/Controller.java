@@ -1,4 +1,4 @@
-package sample;
+package main;
 
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
@@ -7,6 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 
+import java.beans.EventHandler;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -19,7 +20,15 @@ public class Controller implements Initializable {
     public ToggleButton sineSignalButton, rectSignalButton, triangleSignalButton;
     public Slider dutyFactorSlider;
 
-    private boolean enabled = false, isSine = false, isRect = false, isTriangle = false;
+    private enum SignalType {
+        sine,
+        rectangle,
+        triangle
+    }
+
+    private SignalType signalType;
+
+    private boolean enabled = false;
     private double offsetX = 0, offsetY = 0, amplitude = 50, frequency = 50, dutyFactor = 2;
 
     @Override
@@ -43,16 +52,13 @@ public class Controller implements Initializable {
     }
 
     private void drawSignal() {
-        if (!isSine && !isRect && !isTriangle){
-            return;
-        }
-        if (isSine){
+        if (signalType == SignalType.sine) {
             drawSineSignal();
         }
-        if (isRect){
+        if (signalType == SignalType.rectangle) {
             drawRectSignal();
         }
-        if (isTriangle){
+        if (signalType == SignalType.triangle) {
             drawTriangleSignal();
         }
     }
@@ -62,7 +68,8 @@ public class Controller implements Initializable {
         gc.strokeLine(250, 30, 250, 470);
         gc.strokeLine(30, 250, 470, 250);
     }
-    private void clearCanvas(){
+
+    private void clearCanvas() {
         GraphicsContext gc = screenCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, screenCanvas.getWidth(), screenCanvas.getHeight());
         plotAxis();
@@ -80,7 +87,7 @@ public class Controller implements Initializable {
         }
     }
 
-    private void drawRectSignal(){
+    private void drawRectSignal() {
         GraphicsContext gc = screenCanvas.getGraphicsContext2D();
         gc.setStroke(valueOf("#f44242"));
         double baseOffsetX = 30, baseOffsetY = 250;
@@ -89,25 +96,26 @@ public class Controller implements Initializable {
         double curFrequency = Math.max(frequency, 1);
         double widthScreen = 500 + offsetX - baseOffsetX;
         int sign = 1;
-        while (x < widthScreen){
-            if (sign == 1){
+        while (x < widthScreen) {
+            if (sign == 1) {
                 gc.strokeLine(x, y - amplitude, Math.min(x + curFrequency / dutyFactor, widthScreen), y - amplitude);
                 x += curFrequency / dutyFactor;
-                if (x < widthScreen){
+                if (x < widthScreen) {
                     gc.strokeLine(x, y - amplitude, x, y);
                 }
                 sign *= -1;
-            } else if (sign == -1){
+            } else if (sign == -1) {
                 gc.strokeLine(x, y, Math.min(x + curFrequency - curFrequency / dutyFactor, widthScreen), y);
                 x += curFrequency - curFrequency / dutyFactor;
-                if (x < widthScreen){
+                if (x < widthScreen) {
                     gc.strokeLine(x, y - amplitude, x, y);
                 }
                 sign *= -1;
             }
         }
     }
-    private void drawTriangleSignal(){
+
+    private void drawTriangleSignal() {
         GraphicsContext gc = screenCanvas.getGraphicsContext2D();
         gc.setStroke(valueOf("#f44242"));
         double baseOffsetX = 30, baseOffsetY = 250;
@@ -116,18 +124,17 @@ public class Controller implements Initializable {
         double curFrequency = Math.max(frequency, 1);
         double widthScreen = 500 + offsetX - baseOffsetX;
         int sign = -1, it = 1;
-        while (x < widthScreen){
-            gc.strokeLine(x,  y, x + curFrequency / 4, y + sign * amplitude);
+        while (x < widthScreen) {
+            gc.strokeLine(x, y, x + curFrequency / 4, y + sign * amplitude);
             x += curFrequency / 4;
             y = y + sign * amplitude;
             it++;
-            if (it == 2){
+            if (it == 2) {
                 it = 0;
                 sign *= -1;
             }
         }
     }
-
 
 
     private void drawSineSignal() {
@@ -139,14 +146,14 @@ public class Controller implements Initializable {
 
         GraphicsContext gc = screenCanvas.getGraphicsContext2D();
         gc.setStroke(valueOf("#f44242"));
-        for (int i = 1; i < points.length; ++i){
-            gc.strokeLine(points[i].getX(), points[i].getY(), points[i-1].getX(), points[i-1].getY());
+        for (int i = 1; i < points.length; ++i) {
+            gc.strokeLine(points[i].getX(), points[i].getY(), points[i - 1].getX(), points[i - 1].getY());
         }
     }
 
     public void setHorizontalOffset(MouseEvent mouseEvent) {
         offsetX = horizontalOffsetSlider.getValue();
-        if (enabled){
+        if (enabled) {
             clearCanvas();
             drawSignal();
         }
@@ -154,7 +161,7 @@ public class Controller implements Initializable {
 
     public void setVerticalOffset(MouseEvent mouseEvent) {
         offsetY = -verticalOffsetSlider.getValue();
-        if (enabled){
+        if (enabled) {
             clearCanvas();
             drawSignal();
         }
@@ -162,7 +169,7 @@ public class Controller implements Initializable {
 
     public void setAmplitude(MouseEvent mouseEvent) {
         amplitude = amplitudeSlider.getValue();
-        if (enabled){
+        if (enabled) {
             clearCanvas();
             drawSignal();
         }
@@ -170,7 +177,7 @@ public class Controller implements Initializable {
 
     public void setFrequency(MouseEvent mouseEvent) {
         frequency = frequencySlider.getValue();
-        if (enabled){
+        if (enabled) {
             clearCanvas();
             drawSignal();
         }
@@ -178,64 +185,50 @@ public class Controller implements Initializable {
 
 
     public void setRectSignal(MouseEvent mouseEvent) {
-        if (isSine){
+        if (signalType == SignalType.sine) {
             sineSignalButton.disableProperty().setValue(false);
         }
-        if (isTriangle){
+        if (signalType == SignalType.triangle) {
             triangleSignalButton.disableProperty().setValue(false);
         }
+        signalType = SignalType.rectangle;
         rectSignalButton.disableProperty().setValue(true);
         dutyFactorSlider.disableProperty().setValue(false);
-        isRect = true;
-        isSine = false;
-        isTriangle = false;
-        if (enabled){
-            clearCanvas();
-            drawSignal();
-        }
+        clearCanvas();
+        drawSignal();
     }
 
     public void setTriangleSignal(MouseEvent mouseEvent) {
-        if (isRect){
+        if (signalType == SignalType.rectangle) {
             dutyFactorSlider.disableProperty().setValue(true);
             rectSignalButton.disableProperty().setValue(false);
         }
-        if (isSine){
+        if (signalType == SignalType.sine) {
             sineSignalButton.disableProperty().setValue(false);
         }
-        isRect = false;
-        isSine = false;
-        isTriangle = true;
+        signalType = SignalType.triangle;
         triangleSignalButton.disableProperty().setValue(true);
-        if (enabled){
-            clearCanvas();
-            drawSignal();
-        }
+        clearCanvas();
+        drawSignal();
     }
 
     public void setSineSignal(MouseEvent mouseEvent) {
-        if (isRect){
+        if (signalType == SignalType.rectangle) {
             dutyFactorSlider.disableProperty().setValue(true);
             rectSignalButton.disableProperty().setValue(false);
         }
-        if (isTriangle){
+        if (signalType == SignalType.triangle) {
             triangleSignalButton.disableProperty().setValue(false);
         }
-        isRect = false;
-        isSine = true;
-        isTriangle = false;
+        signalType = SignalType.sine;
         sineSignalButton.disableProperty().setValue(true);
-        if (enabled){
-            clearCanvas();
-            drawSignal();
-        }
+        clearCanvas();
+        drawSignal();
     }
 
     public void setDutyFactor(MouseEvent mouseEvent) {
         dutyFactor = dutyFactorSlider.getValue();
-        if (enabled){
-            clearCanvas();
-            drawSignal();
-        }
+        clearCanvas();
+        drawSignal();
     }
 }
