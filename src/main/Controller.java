@@ -5,13 +5,18 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 
-import java.beans.EventHandler;
+
+
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static javafx.scene.paint.Color.*;
+
+
 
 public class Controller implements Initializable {
     public Canvas screenCanvas;
@@ -20,16 +25,11 @@ public class Controller implements Initializable {
     public ToggleButton sineSignalButton, rectSignalButton, triangleSignalButton;
     public Slider dutyFactorSlider;
 
-    private enum SignalType {
-        sine,
-        rectangle,
-        triangle
-    }
 
+    private OscilloscopeScreen oscilloscope = new OscilloscopeScreen();
     private SignalType signalType;
+    private Signal signal = new Signal(oscilloscope);
 
-    private boolean enabled = false;
-    private double offsetX = 0, offsetY = 0, amplitude = 50, frequency = 50, dutyFactor = 2;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -41,7 +41,8 @@ public class Controller implements Initializable {
         GraphicsContext gc = screenCanvas.getGraphicsContext2D();
         double heightScreen = screenCanvas.getHeight(), weightScreen = screenCanvas.getWidth();
         drawCoordinateSystemCanvas(gc);
-        gc.setStroke(valueOf("#c3c8cc"));
+        String plotColor = "#c3c8cc";
+        gc.setStroke(valueOf(plotColor));
 
         for (double cur = 10; cur < weightScreen; cur += 30) {
             gc.strokeLine(cur, 0, cur, heightScreen);
@@ -52,19 +53,18 @@ public class Controller implements Initializable {
     }
 
     private void drawSignal() {
-        if (signalType == SignalType.sine) {
-            drawSineSignal();
-        }
-        if (signalType == SignalType.rectangle) {
-            drawRectSignal();
-        }
-        if (signalType == SignalType.triangle) {
-            drawTriangleSignal();
+        List<Point2D> points = signal.getNewSignal(signalType);
+        GraphicsContext gc = screenCanvas.getGraphicsContext2D();
+        String signalColor = "#f44242";
+        gc.setStroke(valueOf(signalColor));
+        for (int i = 1; i < points.size(); ++i) {
+            gc.strokeLine(points.get(i).getX(), points.get(i).getY(), points.get(i - 1).getX(), points.get(i - 1).getY());
         }
     }
 
     private void drawCoordinateSystemCanvas(GraphicsContext gc) {
-        gc.setStroke(BLACK);
+        String axisColor = "#000000";
+        gc.setStroke(valueOf(axisColor));
         gc.strokeLine(250, 30, 250, 470);
         gc.strokeLine(30, 250, 470, 250);
     }
@@ -76,108 +76,45 @@ public class Controller implements Initializable {
     }
 
     public void clickGeneratorSwitcher(MouseEvent mouseEvent) {
-        if (enabled) {
+        if (oscilloscope.isEnabled()) {
             clearCanvas();
             generatorSwitcher.setText("Включить");
-            enabled = false;
+            oscilloscope.setEnabled(false);
         } else {
             drawSignal();
-            enabled = true;
+            oscilloscope.setEnabled(true);
             generatorSwitcher.setText("Выключить");
         }
     }
 
-    private void drawRectSignal() {
-        GraphicsContext gc = screenCanvas.getGraphicsContext2D();
-        gc.setStroke(valueOf("#f44242"));
-        double baseOffsetX = 30, baseOffsetY = 250;
-        double x = baseOffsetX + offsetX;
-        double y = baseOffsetY + offsetY;
-        double curFrequency = Math.max(frequency, 1);
-        double widthScreen = 500 + offsetX - baseOffsetX;
-        int sign = 1;
-        while (x < widthScreen) {
-            if (sign == 1) {
-                gc.strokeLine(x, y - amplitude, Math.min(x + curFrequency / dutyFactor, widthScreen), y - amplitude);
-                x += curFrequency / dutyFactor;
-                if (x < widthScreen) {
-                    gc.strokeLine(x, y - amplitude, x, y);
-                }
-                sign *= -1;
-            } else if (sign == -1) {
-                gc.strokeLine(x, y, Math.min(x + curFrequency - curFrequency / dutyFactor, widthScreen), y);
-                x += curFrequency - curFrequency / dutyFactor;
-                if (x < widthScreen) {
-                    gc.strokeLine(x, y - amplitude, x, y);
-                }
-                sign *= -1;
-            }
-        }
-    }
-
-    private void drawTriangleSignal() {
-        GraphicsContext gc = screenCanvas.getGraphicsContext2D();
-        gc.setStroke(valueOf("#f44242"));
-        double baseOffsetX = 30, baseOffsetY = 250;
-        double x = baseOffsetX + offsetX;
-        double y = baseOffsetY + offsetY;
-        double curFrequency = Math.max(frequency, 1);
-        double widthScreen = 500 + offsetX - baseOffsetX;
-        int sign = -1, it = 1;
-        while (x < widthScreen) {
-            gc.strokeLine(x, y, x + curFrequency / 4, y + sign * amplitude);
-            x += curFrequency / 4;
-            y = y + sign * amplitude;
-            it++;
-            if (it == 2) {
-                it = 0;
-                sign *= -1;
-            }
-        }
-    }
-
-
-    private void drawSineSignal() {
-        Point2D[] points = new Point2D[440];
-        double baseOffsetX = 30, baseOffsetY = 250;
-        for (int i = 0; i < points.length; ++i) {
-            points[i] = new Point2D(baseOffsetX + i + offsetX, baseOffsetY + offsetY + amplitude * Math.sin(i * 6 / (frequency - 6)));
-        }
-
-        GraphicsContext gc = screenCanvas.getGraphicsContext2D();
-        gc.setStroke(valueOf("#f44242"));
-        for (int i = 1; i < points.length; ++i) {
-            gc.strokeLine(points[i].getX(), points[i].getY(), points[i - 1].getX(), points[i - 1].getY());
-        }
-    }
 
     public void setHorizontalOffset(MouseEvent mouseEvent) {
-        offsetX = horizontalOffsetSlider.getValue();
-        if (enabled) {
+        oscilloscope.setOffsetX(horizontalOffsetSlider.getValue());
+        if (oscilloscope.isEnabled()) {
             clearCanvas();
             drawSignal();
         }
     }
 
     public void setVerticalOffset(MouseEvent mouseEvent) {
-        offsetY = -verticalOffsetSlider.getValue();
-        if (enabled) {
+        oscilloscope.setOffsetY(-verticalOffsetSlider.getValue());
+        if (oscilloscope.isEnabled()) {
             clearCanvas();
             drawSignal();
         }
     }
 
     public void setAmplitude(MouseEvent mouseEvent) {
-        amplitude = amplitudeSlider.getValue();
-        if (enabled) {
+        oscilloscope.setAmplitude(amplitudeSlider.getValue());
+        if (oscilloscope.isEnabled()) {
             clearCanvas();
             drawSignal();
         }
     }
 
     public void setFrequency(MouseEvent mouseEvent) {
-        frequency = frequencySlider.getValue();
-        if (enabled) {
+        oscilloscope.setFrequency(frequencySlider.getValue());
+        if (oscilloscope.isEnabled()) {
             clearCanvas();
             drawSignal();
         }
@@ -194,8 +131,10 @@ public class Controller implements Initializable {
         signalType = SignalType.rectangle;
         rectSignalButton.disableProperty().setValue(true);
         dutyFactorSlider.disableProperty().setValue(false);
-        clearCanvas();
-        drawSignal();
+        if (oscilloscope.isEnabled()) {
+            clearCanvas();
+            drawSignal();
+        }
     }
 
     public void setTriangleSignal(MouseEvent mouseEvent) {
@@ -208,8 +147,10 @@ public class Controller implements Initializable {
         }
         signalType = SignalType.triangle;
         triangleSignalButton.disableProperty().setValue(true);
-        clearCanvas();
-        drawSignal();
+        if (oscilloscope.isEnabled()) {
+            clearCanvas();
+            drawSignal();
+        }
     }
 
     public void setSineSignal(MouseEvent mouseEvent) {
@@ -222,12 +163,14 @@ public class Controller implements Initializable {
         }
         signalType = SignalType.sine;
         sineSignalButton.disableProperty().setValue(true);
-        clearCanvas();
-        drawSignal();
+        if (oscilloscope.isEnabled()) {
+            clearCanvas();
+            drawSignal();
+        }
     }
 
     public void setDutyFactor(MouseEvent mouseEvent) {
-        dutyFactor = dutyFactorSlider.getValue();
+        oscilloscope.setDutyFactor(dutyFactorSlider.getValue());
         clearCanvas();
         drawSignal();
     }
